@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String?
+  image        String?
+  createdAt    DateTime      @default(now())
+  campaigns    Campaign[]
+  entitlement  Entitlement?
+}
+
+model Campaign {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  title      String
+  inputJson  String
+  outputJson String
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model Entitlement {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id])
+
+  credits              Int      @default(1)
+  plan                 String   @default("free")
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  subscriptionStatus   String?
+  currentPeriodEnd     DateTime?
+}
